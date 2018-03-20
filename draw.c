@@ -23,7 +23,7 @@ void add_box(struct matrix * edges, double x, double y, double z, double width, 
 }
 
 void add_sphere(struct matrix * edges, double cx, double cy, double cz, double r, int steps) {
-    struct matrix * sphere_points = new_matrix(4, 0);
+    struct matrix * sphere_points = new_matrix(4, 4);
     double phi, theta;
     double phi_step = 2 * M_PI / steps;
     double theta_step = M_PI / steps;
@@ -47,7 +47,7 @@ void add_sphere(struct matrix * edges, double cx, double cy, double cz, double r
 }
 
 void add_torus(struct matrix * edges, double cx, double cy, double cz, double r1, double r2, int steps) {
-    struct matrix * torus_points = new_matrix(4, 0);
+    struct matrix * torus_points = new_matrix(4, 4);
     double phi, theta;
     double phi_step = 2 * M_PI / steps;
     int i, j;
