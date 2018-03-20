@@ -140,6 +140,31 @@ void parse_file ( char * filename,
             sscanf(params, "%lf %lf %lf %lf %lf %lf %lf %lf", &x0, &y0, &x1, &y1, &rx0, &ry0, &rx1, &ry1);
             printf("drawing hermite curve\n");
             add_curve(edges, x0, y0, x1, y1, rx0, ry0, rx1, ry1, 0.01, HERMITE);
+        } else if (strcmp(line, "box") == 0) {
+            fgets(params, 255, f);
+            params[strlen(params) - 1] = '\0';
+            double x, y, z, width, height, depth;
+            sscanf(params, "%lf %lf %lf %lf %lf %lf", &x, &y, &z, &width, &height, &depth);
+            printf("drawing box\n");
+            add_box(edges, x, y, z, width, height, depth);
+        } else if (strcmp(line, "sphere") == 0) {
+            fgets(params, 255, f);
+            params[strlen(params) - 1] = '\0';
+            double x, y, z, r;
+            sscanf(params, "%lf %lf %lf %lf", &x, &y, &z, &r);
+            printf("drawing sphere\n");
+            add_sphere(edges, x, y, z, r, 50);
+        } else if (strcmp(line, "torus") == 0) {
+            fgets(params, 255, f);
+            params[strlen(params) - 1] = '\0';
+            double x, y, z, r1, r2;
+            sscanf(params, "%lf %lf %lf %lf %lf", &x, &y, &z, &r1, &r2);
+            printf("drawing torus\n");
+            add_torus(edges, x, y, z, r1, r2, 50);
+        } else if (strcmp(line, "clear") == 0) {
+            printf("clearing edges\n");
+            free_matrix(edges);
+            edges = new_matrix(4, 4);
         } else if (strcmp(line, "quit") == 0 || strcmp(line, "exit") == 0 ) {
             break;
         }

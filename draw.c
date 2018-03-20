@@ -7,13 +7,73 @@
 #include "draw.h"
 #include "matrix.h"
 
+void add_box(struct matrix * edges, double x, double y, double z, double width, double height, double depth) {
+    add_edge(edges, x, y, z, x + width, y, z);
+    add_edge(edges, x + width, y, z, x + width, y, z - depth);
+    add_edge(edges, x + width, y, z - depth, x, y, z - depth);
+    add_edge(edges, x, y, z - depth, x, y, z);
+    add_edge(edges, x, y, z, x, y - height, z);
+    add_edge(edges, x + width, y, z, x + width, y - height, z);
+    add_edge(edges, x + width, y, z - depth, x + width, y - height, z - depth);
+    add_edge(edges, x, y, z - depth, x, y - height, z - depth);
+    add_edge(edges, x, y - height, z - depth, x, y - height, z);
+    add_edge(edges, x, y - height, z, x + width, y - height, z);
+    add_edge(edges, x + width, y - height, z, x + width, y - height, z - depth);
+    add_edge(edges, x + width, y - height, z - depth, x, y - height, z - depth);
+}
+
+void add_sphere(struct matrix * edges, double cx, double cy, double cz, double r, int steps) {
+  struct matrix * sphere_points = new_matrix(4, 0);
+  double phi, theta;
+  double phi_step = 2 * M_PI / steps;
+  double theta_step = M_PI / steps;
+  int i, j;
+  for (i = 1; i <= steps; i++) {
+    phi = i * phi_step;
+    for (j = 1; j <= steps; j++) {
+      theta = j * theta_step;
+      add_point(sphere_points, r * cos(theta) + cx, r * sin(theta) * cos(phi) + cy, r * sin(theta) * sin(phi) + cz);
+    }
+  }
+
+  double x, y, z;
+  for (i = 0; i < sphere_points->lastcol; i++) {
+      x = sphere_points->m[0][i];
+      y = sphere_points->m[1][i];
+      z = sphere_points->m[2][i];
+      add_edge(edges, x, y, z, x + 1, y + 1, z + 1);
+  }
+}
+
+void add_torus(struct matrix * edges, double cx, double cy, double cz, double r1, double r2, int steps) {
+    struct matrix * torus_points = new_matrix(4, 0);
+    double phi, theta;
+    double phi_step = 2 * M_PI / steps;
+    int i, j;
+    for (i = 1; i <= steps; i++) {
+        phi = i * phi_step;
+        for (j = 1; j <= steps; j++) {
+            theta = j * phi_step;
+            add_point(torus_points, cos(phi) * (r1 * cos(theta) + r2) + cx, r1 * sin(theta) + cy, -1 * sin(phi) * (r1 * cos(theta) + r2) + cz);
+        }
+    }
+
+    double x, y, z;
+    for (i = 0; i < torus_points->lastcol; i++) {
+        x = torus_points->m[0][i];
+        y = torus_points->m[1][i];
+        z = torus_points->m[2][i];
+        add_edge(edges, x, y, z, x + 1, y + 1, z + 1);
+    }
+}
+
 void add_circle(struct matrix * edges, double cx, double cy, double cz, double r, double step) {
     double t;
     double x0, y0, x1, y1;
     x0 = r + cx;
     y0 = cy;
     for (t = step; t <= 1; t += step) {
-        printf("t = %lf\n", t);
+        //printf("t = %lf\n", t);
         x1 = r*cos(2*M_PI*t) + cx;
         y1 = r*sin(2*M_PI*t) + cy;
         add_edge(edges, x0, y0, cz, x1, y1, cz);
@@ -72,11 +132,6 @@ void add_edge( struct matrix * points,
 }
 
 void draw_lines( struct matrix * points, screen s, color c) {
-
-    if ( points->lastcol < 2 ) {
-        printf("Need at least 2 points to draw a line!\n");
-        return;
-    }
 
     int point;
     for (point=0; point < points->lastcol-1; point+=2)
